@@ -1,13 +1,20 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const schedule = require('node-schedule');
-const token = './token.txt';
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+const token = 'MTEzOTExNzI4OTgzNzQyODc5Ng.G3Jp8d.rtH8jqkGGPoC7yX0HivGqIwlgCuAQZxJpqgLxA';
 
-const client = new Discord.Client({ intents: [Discord.GatewayIntentBits.GuildMembers, Discord.GatewayIntentBits.Guilds] });
+const client = new Discord.Client({ intents: [Discord.GatewayIntentBits.GuildMembers, Discord.GatewayIntentBits.Guilds, Discord.GatewayIntentBits.GuildMessages, Discord.GatewayIntentBits.MessageContent] });
 
+const commands = []
 client.commands = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+
+// Data
+const slimeparties = []
 
 
 // Messages
@@ -17,8 +24,45 @@ let insomnieMessageID;
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
+    commands.push(command.data.toJSON());
     client.commands.set(command.data.name, command);
+    console.log(command.data.name);
 }
+
+const clientId = '1139117289837428796';
+const guildId = '1046416474400632963';
+
+const rest = new REST({ version: '9' }).setToken(token);
+
+(async () => {
+	try {
+		console.log('Started refreshing application (/) commands.');
+
+		await rest.put(
+			Routes.applicationGuildCommands(clientId, guildId),
+			{ body: commands },
+		);
+
+		console.log('Successfully reloaded application (/) commands.');
+	} catch (error) {
+		console.error(error);
+	}
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 client.once('ready', () => {
     console.log('Ready!');
@@ -96,4 +140,40 @@ client.once('ready', () => {
     });
 });
 
-client.login(fs.readFileSync('./token.txt', 'utf8'));
+// Interactions Handler with ./commands
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isCommand()) return;
+
+    const command = client.commands.get(interaction.commandName);
+
+    if (!command) return;
+
+    try {
+        await command.execute(interaction);
+    } catch (error) {
+        console.error(error);
+        await interaction.reply({ content: 'Une erreur est survenue lors de l\'exécution de cette commande !', ephemeral: true });
+    }
+
+});
+
+// Buttons Handler with ./buttons
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isButton()) return;
+
+    const button = require(`./buttons/${interaction.customId}.js`);
+    
+    if (!button) return;
+
+    try {
+        await button.execute(interaction);
+    } catch (error) {
+        console.error(error);
+        await interaction.reply({ content: 'Une erreur est survenue lors de l\'exécution de ce bouton !', ephemeral: true });
+    }
+});
+
+client.login(token);
+
+
+exports.slimeparties = slimeparties;
