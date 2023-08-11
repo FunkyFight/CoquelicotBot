@@ -2,7 +2,6 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const schedule = require('node-schedule');
 const token = require('./token.txt')
-const fs = require('fs');
 
 const client = new Discord.Client({ intents: [Discord.GatewayIntentBits.GuildMembers, Discord.GatewayIntentBits.Guilds] });
 
