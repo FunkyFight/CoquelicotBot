@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const schedule = require('node-schedule');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const token = '';
+const token = 'MTEzOTExNzI4OTgzNzQyODc5Ng.GaIENv.MyWBhEyM9_E91V5OBPtJfgCIVY7prfkXwQQXFQ';
 
 const client = new Discord.Client({ intents: [Discord.GatewayIntentBits.GuildMembers, Discord.GatewayIntentBits.Guilds, Discord.GatewayIntentBits.GuildMessages, Discord.GatewayIntentBits.MessageContent] });
 
@@ -68,11 +68,13 @@ client.once('ready', () => {
     console.log('Ready!');
 
     
-    const general = client.channels.cache.get('1056663037995651124');
-    const insomnie = client.channels.cache.get('1139253287917473903');
+    const general = client.channels.cache.get('1046416475054948375');
+    const insomnie = client.channels.cache.get('1138625311123189790');
 
     const dayRule = new schedule.RecurrenceRule();
     dayRule.hour = 6;
+    dayRule.minute = 0;
+    dayRule.second = 0;
     const dayJob = schedule.scheduleJob(dayRule, function(){
         
         // Close the channel insomnie for everyone and every role and open the channel general for everyone and every role
@@ -86,7 +88,7 @@ client.once('ready', () => {
             "embeds": [
             {
                 "id": 846937334,
-                "description": "Mais, quand quelque chose se termine quelque chose d'autre commence.\n**Les insomniaques rassemblez vous dans <#1046416475054948375> !**",
+                "description": "Mais, quand quelque chose se termine quelque chose d'autre commence.\n**Les insomniaques rassemblez vous dans <#1138625311123189790> !**",
                 "fields": [],
                 "title": "C'est le jour ici donc ce salon est fermé jusqu'à 01h00",
                 "color": 16711680
@@ -107,6 +109,8 @@ client.once('ready', () => {
 
     const nightRule = new schedule.RecurrenceRule();
     nightRule.hour = 1;
+    nightRule.minute = 0;
+    nightRule.second = 0;
     const nightJob = schedule.scheduleJob(nightRule, function(){
         // Close the channel general for everyone and every role and open the channel insomnie for everyone and every role
         general.permissionOverwrites.edit(general.guild.roles.everyone, { SendMessages: false });
@@ -138,6 +142,8 @@ client.once('ready', () => {
             insomnie.messages.delete(insomnieMessageID);
         }
     });
+
+    console.log("Les règles d'ouvertures et de fermetures sont en place !")
 });
 
 // Interactions Handler with ./commands

@@ -15,6 +15,8 @@ module.exports = {
 			this.joinMessage = null;
 			this.threadMessage = null;
 			this.thread = null;
+
+			this.isStarted = false;
 		}
 
 		async waitForPlayers() {
@@ -50,6 +52,9 @@ module.exports = {
 				"color": 15466240
 			}
 
+			
+
+
 			const message = await this.channel.send({ embeds: [embed], components: [row] })
 				.then(msg => {
 					this.joinMessage = msg;
@@ -69,7 +74,7 @@ module.exports = {
 				autoArchiveDuration: 1440,
 				reason: "SlimeParty"
 			})
-
+			this.isStarted = true;
 			this.nextTurn(false)
 		}
 
@@ -89,9 +94,20 @@ module.exports = {
 				"color": 15466240
 			}
 
+			// Buttons "Arrêter la partie" and "Partir de la partie"
+			const stop = new ButtonBuilder()
+				.setCustomId('stop-slimeparty')
+				.setLabel('Arrêter la partie')
+				.setStyle('Danger');
+			
+			const leave = new ButtonBuilder()
+				.setCustomId('leave-slimeparty')
+				.setLabel('Partir de la partie')
+				.setStyle('Secondary');
+
 			if (!isRestarting) {
 				// On renvoit la phrase car ce n'est pas le même tour
-				await this.thread.send({embeds: [embed]})
+				await this.thread.send({embeds: [embed], components: [new ActionRowBuilder().addComponents(stop, leave)]})
 					.then(msg => {
 						this.threadMessage = msg;
 					})
@@ -120,16 +136,18 @@ module.exports = {
 					}
 				})
 				.catch(error => {
-					// Say that a player lost, delete thread 15 seconds after
-					this.channel.send({ content: `${playerData.displayName} a perdu ! Fin de partie.`})
+					if(this.isStarted) {
+						// Say that a player lost, delete thread 15 seconds after
+						this.channel.send({ content: `${playerData.displayName} a perdu ! Fin de partie.`})
 						.then(msg => {
 							setTimeout(() => {
 								this.thread.delete();
 							}, 15000)
 						})
+					}
 				})
 
-			if (hasPassed) {
+			if (hasPassed && this.isStarted) {
 				// Next player next turn
 				this.currentPlaying++;
 				if (this.currentPlaying >= this.players.length) {
@@ -140,10 +158,41 @@ module.exports = {
 				// Restart
 				this.nextTurn(true);
 			}
-
-			
-
-
 		}
-	}
+
+		async leaveGame(playerID) {
+			// Get player data
+			const playerData = await this.channel.guild.members.fetch(playerID);
+
+			// Remove from players
+			this.players = this.players.filter(player => player != playerID);
+
+			// Send message
+			this.thread.send({ content: `${playerData.displayName} a quitté la partie.`})
+				.then(msg => {
+					setTimeout(() => {
+						msg.delete();
+					}, 5000)
+				})
+		}
+
+		async stopGame(userID) {
+			// Check if user is host
+			if (this.host != userID) {
+				return;
+			}
+
+			const host = await this.channel.guild.members.fetch(this.host)
+			this.isStarted = false;
+
+			// Send message
+			this.threadMessage.delete();
+			this.thread.send({ content: `La partie a été arrêtée par ${host.displayName}.`})
+				.then(msg => {
+					setTimeout(() => {
+						this.thread.delete();
+					}, 5000)
+				})
+			}
+	}	
 }

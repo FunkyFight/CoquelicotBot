@@ -14,6 +14,8 @@ module.exports = {
 			players: [interaction.user.id]
 		});
 
+		interaction.reply({ content: 'La partie a été créée !', ephemeral: true });
+
 		game.waitForPlayers();
 		index.slimeparties.push(game);
 	},
