@@ -138,7 +138,8 @@ module.exports = {
 				.catch(error => {
 					if(this.isStarted) {
 						// Say that a player lost, delete thread 15 seconds after
-						this.channel.send({ content: `${playerData.displayName} a perdu ! Fin de partie.`})
+						this.isStarted = false;
+						this.thread.send({ content: `${playerData.displayName} a perdu ! Fin de partie.`})
 						.then(msg => {
 							setTimeout(() => {
 								this.thread.delete();

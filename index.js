@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const schedule = require('node-schedule');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const token = '';
+const token = 'MTEzOTExNzI4OTgzNzQyODc5Ng.G2H0fC.FyBu_VDehXUa_QbjND1mlGUcbf_XkWV6EjG1J8';
 
 const client = new Discord.Client({ intents: [Discord.GatewayIntentBits.GuildMembers, Discord.GatewayIntentBits.Guilds, Discord.GatewayIntentBits.GuildMessages, Discord.GatewayIntentBits.MessageContent] });
 
