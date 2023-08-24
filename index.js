@@ -3,9 +3,10 @@ const Discord = require('discord.js');
 const schedule = require('node-schedule');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
-const token = 'MTEzOTExNzI4OTgzNzQyODc5Ng.G2H0fC.FyBu_VDehXUa_QbjND1mlGUcbf_XkWV6EjG1J8';
+const token = '';
 
 const client = new Discord.Client({ intents: [Discord.GatewayIntentBits.GuildMembers, Discord.GatewayIntentBits.Guilds, Discord.GatewayIntentBits.GuildMessages, Discord.GatewayIntentBits.MessageContent] });
+
 
 const commands = []
 client.commands = new Discord.Collection();
@@ -15,7 +16,7 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
 
 // Data
 const slimeparties = []
-
+let colinReminder = null;
 
 // Messages
 let generalMessageID;
@@ -72,7 +73,7 @@ client.once('ready', () => {
     const insomnie = client.channels.cache.get('1138625311123189790');
 
     const dayRule = new schedule.RecurrenceRule();
-    dayRule.hour = 6;
+    dayRule.hour = 4;
     dayRule.minute = 0;
     dayRule.second = 0;
     const dayJob = schedule.scheduleJob(dayRule, function(){
@@ -102,13 +103,13 @@ client.once('ready', () => {
 
         // Try to delete insomnieMessageID
         if (generalMessageID != null) {
-            insomnie.messages.delete(generalMessageID);
+            general.messages.delete(generalMessageID);
         }
 
     });
 
     const nightRule = new schedule.RecurrenceRule();
-    nightRule.hour = 1;
+    nightRule.hour = 23;
     nightRule.minute = 0;
     nightRule.second = 0;
     const nightJob = schedule.scheduleJob(nightRule, function(){
@@ -183,3 +184,4 @@ client.login(token);
 
 
 exports.slimeparties = slimeparties;
+exports.colinReminder = colinReminder;
